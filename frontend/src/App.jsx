@@ -35,7 +35,7 @@ function App() {
   const hasKey = Boolean(apiKey || serverConfig?.has_backend_gemini_key);
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#080b12] text-slate-100 selection:bg-red-500/30 selection:text-red-200">
+    <div className="min-h-screen flex flex-col bg-gradient-to-b from-slate-50 via-white to-slate-50 text-slate-800 selection:bg-red-500/20 selection:text-red-700">
       <Navbar
         onOpenSettings={() => setIsSettingsOpen(true)}
         hasApiKey={hasKey}
@@ -45,17 +45,17 @@ function App() {
       <main className="flex-1 mx-auto w-full max-w-4xl px-4 sm:px-6 py-8 sm:py-12">
         {/* Hero Banner */}
         <div className="text-center max-w-2xl mx-auto mb-10 space-y-3">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-red-500/20 bg-red-500/10 text-red-400 text-xs font-semibold">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full border border-red-200 bg-red-50 text-red-600 text-xs font-bold shadow-xs">
             <span>✨</span>
             <span>Summarize any YouTube video in seconds</span>
           </div>
-          <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white">
+          <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-slate-900 leading-tight">
             Skip the fluff. Get instant{" "}
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-rose-400 to-amber-400">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-600 via-rose-600 to-amber-600">
               key points & takeaways.
             </span>
           </h2>
-          <p className="text-sm sm:text-base text-slate-400 leading-relaxed">
+          <p className="text-sm sm:text-base text-slate-600 leading-relaxed font-normal">
             Paste any YouTube video link, Short, or Livestream. Our AI extracts transcripts, chapters, and discussions to give you clear, structured insights.
           </p>
         </div>
@@ -63,10 +63,10 @@ function App() {
         <Summarizer apiKey={apiKey} preferredModel={preferredModel} />
       </main>
 
-      <footer className="border-t border-slate-800/80 bg-[#080c16]/80 py-8 text-center text-xs text-slate-500">
+      <footer className="border-t border-slate-200/80 bg-white/80 py-8 text-center text-xs text-slate-500">
         <div className="mx-auto max-w-4xl px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-          <div className="flex items-center gap-2 text-slate-400">
-            <span className="h-2 w-2 rounded-full bg-emerald-400"></span>
+          <div className="flex items-center gap-2 text-slate-600 font-medium">
+            <span className="h-2 w-2 rounded-full bg-emerald-500"></span>
             <span>API Online • Works on any link</span>
           </div>
           <p>
@@ -77,7 +77,7 @@ function App() {
               href="https://github.com/keerthana9966/youtube-summariser"
               target="_blank"
               rel="noreferrer"
-              className="text-slate-400 hover:text-white transition"
+              className="text-slate-600 hover:text-red-600 font-semibold transition"
             >
               GitHub Repo
             </a>

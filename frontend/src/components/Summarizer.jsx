@@ -41,11 +41,11 @@ function formatSummary(text) {
       const heading = trimmed.replace(/^###\s*/, "");
       return (
         <div key={index} className="mt-6 mb-3 first:mt-0">
-          <h3 className="text-base font-bold text-white flex items-center gap-2">
-            <span className="h-2 w-2 rounded-full bg-red-500 shadow-sm shadow-red-500/50"></span>
+          <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+            <span className="h-2 w-2 rounded-full bg-red-500 shadow-sm shadow-red-500/40"></span>
             <span>{heading}</span>
           </h3>
-          <div className="h-px bg-slate-800/80 mt-1.5 mb-2 w-full"></div>
+          <div className="h-px bg-slate-200/80 mt-1.5 mb-2 w-full"></div>
         </div>
       );
     }
@@ -53,7 +53,7 @@ function formatSummary(text) {
     if (trimmed.startsWith("## ") || trimmed.startsWith("# ")) {
       const heading = trimmed.replace(/^#+\s*/, "");
       return (
-        <h2 key={index} className="text-lg font-bold text-white mt-6 mb-2 border-b border-slate-800 pb-1">
+        <h2 key={index} className="text-lg font-bold text-slate-900 mt-6 mb-2 border-b border-slate-200 pb-1">
           {heading}
         </h2>
       );
@@ -62,8 +62,8 @@ function formatSummary(text) {
     if (trimmed.startsWith("- ") || trimmed.startsWith("* ") || trimmed.startsWith("• ")) {
       const bulletContent = trimmed.replace(/^[-*•]\s*/, "");
       return (
-        <li key={index} className="ml-2 mb-2 flex items-start gap-2.5 text-slate-300 text-sm leading-relaxed">
-          <span className="text-red-400 mt-1 shrink-0 text-xs">▸</span>
+        <li key={index} className="ml-2 mb-2 flex items-start gap-2.5 text-slate-700 text-sm leading-relaxed">
+          <span className="text-red-500 mt-1 shrink-0 text-xs">▸</span>
           <span>{renderFormattedInline(bulletContent)}</span>
         </li>
       );
@@ -72,8 +72,8 @@ function formatSummary(text) {
     if (/^\d+\.\s/.test(trimmed)) {
       const match = trimmed.match(/^(\d+)\.\s*(.*)/);
       return (
-        <li key={index} className="ml-2 mb-2 flex items-start gap-2 text-slate-300 text-sm leading-relaxed">
-          <span className="font-mono text-xs font-semibold text-amber-400 shrink-0 mt-0.5">{match ? match[1] : index}.</span>
+        <li key={index} className="ml-2 mb-2 flex items-start gap-2 text-slate-700 text-sm leading-relaxed">
+          <span className="font-mono text-xs font-bold text-amber-600 shrink-0 mt-0.5">{match ? match[1] : index}.</span>
           <span>{renderFormattedInline(match ? match[2] : trimmed)}</span>
         </li>
       );
@@ -82,14 +82,14 @@ function formatSummary(text) {
     if (trimmed.startsWith(">")) {
       const quote = trimmed.replace(/^>\s*/, "");
       return (
-        <blockquote key={index} className="my-3 rounded-xl border-l-2 border-amber-500/60 bg-amber-500/5 p-3 text-xs italic text-slate-300">
+        <blockquote key={index} className="my-3 rounded-2xl border-l-4 border-amber-400 bg-amber-50/70 p-3.5 text-xs italic text-amber-950">
           {renderFormattedInline(quote)}
         </blockquote>
       );
     }
 
     return (
-      <p key={index} className="mb-3 text-sm leading-relaxed text-slate-300">
+      <p key={index} className="mb-3 text-sm leading-relaxed text-slate-700">
         {renderFormattedInline(trimmed)}
       </p>
     );
@@ -101,21 +101,21 @@ function renderFormattedInline(text) {
   return parts.map((part, i) => {
     if (part.startsWith("**") && part.endsWith("**")) {
       return (
-        <strong key={i} className="font-semibold text-slate-100">
+        <strong key={i} className="font-bold text-slate-900">
           {part.slice(2, -2)}
         </strong>
       );
     }
     if (part.startsWith("*") && part.endsWith("*")) {
       return (
-        <em key={i} className="italic text-slate-200">
+        <em key={i} className="italic text-slate-800">
           {part.slice(1, -1)}
         </em>
       );
     }
     if (part.startsWith("`") && part.endsWith("`")) {
       return (
-        <code key={i} className="rounded bg-slate-800 px-1.5 py-0.5 font-mono text-xs text-red-300">
+        <code key={i} className="rounded bg-slate-100 px-1.5 py-0.5 font-mono text-xs text-red-600 border border-slate-200">
           {part.slice(1, -1)}
         </code>
       );
@@ -241,13 +241,13 @@ export default function Summarizer({ apiKey, preferredModel }) {
   return (
     <div className="space-y-8 animate-fade-in">
       {/* Search and Input Container */}
-      <section className="relative rounded-3xl glass-panel p-5 sm:p-7 glow-card">
+      <section className="relative rounded-3xl bg-white p-5 sm:p-7 shadow-xl border border-slate-200/80 glow-card">
         <form onSubmit={(e) => handleSubmit(e)} className="space-y-5">
           <div>
             <div className="flex items-center justify-between mb-2">
-              <label htmlFor="url-input" className="text-xs sm:text-sm font-semibold tracking-wide text-slate-200 flex items-center gap-2">
+              <label htmlFor="url-input" className="text-xs sm:text-sm font-bold tracking-wide text-slate-800 flex items-center gap-2">
                 <span>Enter YouTube Video URL</span>
-                <span className="text-[11px] font-normal text-slate-400 hidden sm:inline">(Supports all links, Shorts, and Live)</span>
+                <span className="text-[11px] font-normal text-slate-500 hidden sm:inline">(Supports all links, Shorts, and Live)</span>
               </label>
 
               <div className="flex items-center gap-2">
@@ -256,7 +256,7 @@ export default function Summarizer({ apiKey, preferredModel }) {
                     id="clear-url-btn"
                     type="button"
                     onClick={() => setUrl("")}
-                    className="text-xs text-slate-400 hover:text-red-400 transition"
+                    className="text-xs font-semibold text-slate-500 hover:text-red-600 transition"
                   >
                     Clear
                   </button>
@@ -265,7 +265,7 @@ export default function Summarizer({ apiKey, preferredModel }) {
                   id="paste-url-btn"
                   type="button"
                   onClick={handlePaste}
-                  className="flex items-center gap-1 text-xs text-slate-300 hover:text-white bg-slate-800/80 px-2 py-1 rounded-lg border border-slate-700/60 transition"
+                  className="flex items-center gap-1 text-xs font-semibold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded-lg border border-slate-200 transition"
                 >
                   <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
@@ -277,7 +277,7 @@ export default function Summarizer({ apiKey, preferredModel }) {
 
             <div className="relative flex flex-col sm:flex-row gap-3">
               <div className="relative flex-1">
-                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-500">
+                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-400">
                   <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
                   </svg>
@@ -288,7 +288,7 @@ export default function Summarizer({ apiKey, preferredModel }) {
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
                   placeholder="Paste YouTube link: https://youtube.com/watch?v=... or /shorts/..."
-                  className="w-full rounded-2xl border border-slate-700/80 glass-input py-3.5 pl-12 pr-4 text-sm text-slate-100 placeholder-slate-500 shadow-inner transition focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500/30"
+                  className="w-full rounded-2xl border border-slate-300 bg-slate-50/70 py-3.5 pl-12 pr-4 text-sm text-slate-900 placeholder-slate-400 shadow-inner transition focus:border-red-500 focus:bg-white focus:outline-none focus:ring-2 focus:ring-red-500/20"
                   disabled={loading}
                 />
               </div>
@@ -297,7 +297,7 @@ export default function Summarizer({ apiKey, preferredModel }) {
                 id="summarize-btn"
                 type="submit"
                 disabled={loading || !url.trim()}
-                className="flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-red-600 to-rose-600 px-7 py-3.5 text-sm font-bold text-white shadow-lg shadow-red-600/30 transition hover:from-red-500 hover:to-rose-500 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
+                className="flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-red-600 to-rose-600 px-7 py-3.5 text-sm font-bold text-white shadow-md shadow-red-500/25 transition hover:from-red-500 hover:to-rose-500 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
               >
                 {loading ? (
                   <>
@@ -322,23 +322,23 @@ export default function Summarizer({ apiKey, preferredModel }) {
           {/* Style Selector Tabs */}
           <div>
             <div className="flex items-center justify-between mb-2">
-              <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Summary Style</span>
-              <span className="text-xs text-slate-500">Pick format preference</span>
+              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Summary Style</span>
+              <span className="text-xs text-slate-400">Pick format preference</span>
             </div>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
               {STYLE_OPTIONS.map((opt) => (
                 <button
                   key={opt.id}
                   id={`style-btn-${opt.id}`}
                   type="button"
                   onClick={() => setStyle(opt.id)}
-                  className={`flex flex-col items-start p-2.5 rounded-xl border text-left transition ${
+                  className={`flex flex-col items-start p-3 rounded-2xl border text-left transition ${
                     style === opt.id
-                      ? "border-red-500/80 bg-red-500/10 text-white shadow-sm"
-                      : "border-slate-800 bg-slate-900/40 text-slate-400 hover:border-slate-700 hover:text-slate-200"
+                      ? "border-red-500 bg-red-50/80 text-red-700 shadow-sm ring-1 ring-red-400"
+                      : "border-slate-200 bg-slate-50/60 text-slate-600 hover:border-slate-300 hover:bg-slate-100"
                   }`}
                 >
-                  <div className="flex items-center gap-1.5 text-xs font-semibold">
+                  <div className="flex items-center gap-1.5 text-xs font-bold">
                     <span>{opt.icon}</span>
                     <span>{opt.name}</span>
                   </div>
@@ -349,8 +349,8 @@ export default function Summarizer({ apiKey, preferredModel }) {
           </div>
 
           {/* Quick Sample Links */}
-          <div className="pt-2 border-t border-slate-800/80">
-            <span className="text-xs font-medium text-slate-400 mr-2">Try sample:</span>
+          <div className="pt-3 border-t border-slate-100">
+            <span className="text-xs font-semibold text-slate-600 mr-2">Try sample:</span>
             <div className="inline-flex flex-wrap gap-2 mt-2">
               {SAMPLE_VIDEOS.map((sample, idx) => (
                 <button
@@ -361,10 +361,10 @@ export default function Summarizer({ apiKey, preferredModel }) {
                     setUrl(sample.url);
                     handleSubmit(null, sample.url);
                   }}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-slate-700/60 bg-slate-900/70 px-3 py-1 text-xs text-slate-300 hover:border-red-500/40 hover:bg-red-500/10 hover:text-white transition"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-700 hover:border-red-300 hover:bg-red-50 hover:text-red-700 transition shadow-xs"
                 >
                   <span>{sample.label}</span>
-                  <span className="text-[10px] text-slate-500 font-mono">({sample.tag})</span>
+                  <span className="text-[10px] text-slate-400 font-mono">({sample.tag})</span>
                 </button>
               ))}
             </div>
@@ -374,23 +374,23 @@ export default function Summarizer({ apiKey, preferredModel }) {
 
       {/* Error Alert */}
       {error && (
-        <div id="error-alert" className="flex items-start gap-3 rounded-2xl border border-red-500/40 bg-red-500/10 p-4 text-red-200 animate-fade-in">
-          <svg className="mt-0.5 h-5 w-5 shrink-0 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <div id="error-alert" className="flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-red-800 animate-fade-in shadow-sm">
+          <svg className="mt-0.5 h-5 w-5 shrink-0 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           <div className="space-y-1">
-            <p className="text-sm font-semibold text-red-300">Could not summarize video</p>
-            <p className="text-xs text-red-200 leading-relaxed">{error}</p>
+            <p className="text-sm font-bold text-red-900">Could not summarize video</p>
+            <p className="text-xs text-red-700 leading-relaxed">{error}</p>
           </div>
         </div>
       )}
 
       {/* Multi-step Loading Animation */}
       {loading && (
-        <div id="loading-card" className="rounded-3xl glass-panel p-8 text-center space-y-6 glow-card">
+        <div id="loading-card" className="rounded-3xl bg-white p-8 text-center space-y-6 shadow-xl border border-slate-200/80 glow-card">
           <div className="relative mx-auto flex h-16 w-16 items-center justify-center">
-            <div className="absolute inset-0 animate-ping rounded-full bg-red-600/20" />
-            <div className="relative flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-tr from-red-600 to-rose-500 text-white shadow-lg shadow-red-600/40">
+            <div className="absolute inset-0 animate-ping rounded-full bg-red-500/20" />
+            <div className="relative flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-tr from-red-600 to-rose-500 text-white shadow-md shadow-red-500/30">
               <svg className="h-6 w-6 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
               </svg>
@@ -398,8 +398,8 @@ export default function Summarizer({ apiKey, preferredModel }) {
           </div>
 
           <div className="space-y-2">
-            <h3 className="text-base font-semibold text-white">Analyzing YouTube Content</h3>
-            <p className="text-xs text-slate-400">
+            <h3 className="text-base font-bold text-slate-900">Analyzing YouTube Content</h3>
+            <p className="text-xs text-slate-500">
               {loadingStep === 1 && "Verifying link, video title, and channel info..."}
               {loadingStep === 2 && "Fetching video transcripts, captions, and notes..."}
               {loadingStep === 3 && "Synthesizing structured points and takeaways..."}
@@ -412,7 +412,7 @@ export default function Summarizer({ apiKey, preferredModel }) {
               <div
                 key={step}
                 className={`h-2 rounded-full transition-all duration-300 ${
-                  loadingStep >= step ? "w-8 bg-red-500" : "w-2 bg-slate-800"
+                  loadingStep >= step ? "w-8 bg-red-500" : "w-2 bg-slate-200"
                 }`}
               />
             ))}
@@ -422,16 +422,16 @@ export default function Summarizer({ apiKey, preferredModel }) {
 
       {/* Summary Results Card */}
       {summaryData && !loading && (
-        <article id="summary-result-card" className="rounded-3xl glass-panel overflow-hidden glow-card border border-slate-700/60">
+        <article id="summary-result-card" className="rounded-3xl bg-white overflow-hidden shadow-xl border border-slate-200/90 glow-card">
           {/* Top Video Header */}
-          <div className="p-5 sm:p-6 border-b border-slate-800 bg-slate-900/40">
+          <div className="p-5 sm:p-6 border-b border-slate-200 bg-slate-50/70">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div className="flex items-start sm:items-center gap-4">
                 <a
                   href={`https://www.youtube.com/watch?v=${summaryData.video_id}`}
                   target="_blank"
                   rel="noreferrer"
-                  className="relative group shrink-0 overflow-hidden rounded-xl border border-slate-700/60 shadow-md"
+                  className="relative group shrink-0 overflow-hidden rounded-xl border border-slate-300/80 shadow-sm"
                   title="Open on YouTube"
                 >
                   <img
@@ -439,7 +439,7 @@ export default function Summarizer({ apiKey, preferredModel }) {
                     alt={summaryData.title}
                     className="h-16 w-28 object-cover transition-transform group-hover:scale-105"
                   />
-                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
+                  <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
                     <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M8 5v14l11-7z" />
                     </svg>
@@ -451,21 +451,21 @@ export default function Summarizer({ apiKey, preferredModel }) {
                     href={`https://www.youtube.com/watch?v=${summaryData.video_id}`}
                     target="_blank"
                     rel="noreferrer"
-                    className="text-base font-bold text-white hover:text-red-400 transition line-clamp-2"
+                    className="text-base font-bold text-slate-900 hover:text-red-600 transition line-clamp-2"
                   >
                     {summaryData.title}
                   </a>
-                  <p className="text-xs text-slate-400 flex items-center gap-1.5">
+                  <p className="text-xs text-slate-500 flex items-center gap-1.5 font-medium">
                     <span>{summaryData.author}</span>
                     <span>•</span>
-                    <span className="font-mono">{summaryData.transcript_length.toLocaleString()} chars</span>
+                    <span className="font-mono text-slate-400">{summaryData.transcript_length.toLocaleString()} chars</span>
                   </p>
 
                   <div className="flex flex-wrap items-center gap-2 pt-1">
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold bg-red-500/10 text-red-400 border border-red-500/20">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-red-50 text-red-700 border border-red-200">
                       {summaryData.source === "transcript" ? "📝 Transcript-based" : "📋 Description & Metadata"}
                     </span>
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
                       ⚡ {summaryData.model_used}
                     </span>
                   </div>
@@ -477,19 +477,19 @@ export default function Summarizer({ apiKey, preferredModel }) {
                 <button
                   id="copy-summary-btn"
                   onClick={handleCopy}
-                  className="flex items-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800/80 px-3 py-2 text-xs font-semibold text-slate-200 hover:border-slate-600 hover:bg-slate-700 transition"
+                  className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-bold text-slate-700 hover:border-slate-300 hover:bg-slate-50 transition shadow-xs"
                   title="Copy formatted markdown"
                 >
                   {copied ? (
                     <>
-                      <svg className="h-4 w-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="h-4 w-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
-                      <span className="text-emerald-300">Copied!</span>
+                      <span className="text-emerald-700">Copied!</span>
                     </>
                   ) : (
                     <>
-                      <svg className="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="h-4 w-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
                       </svg>
                       <span>Copy</span>
@@ -500,10 +500,10 @@ export default function Summarizer({ apiKey, preferredModel }) {
                 <button
                   id="download-md-btn"
                   onClick={handleDownloadMarkdown}
-                  className="flex items-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800/80 px-3 py-2 text-xs font-semibold text-slate-200 hover:border-slate-600 hover:bg-slate-700 transition"
+                  className="flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs font-bold text-slate-700 hover:border-slate-300 hover:bg-slate-50 transition shadow-xs"
                   title="Download Markdown file"
                 >
-                  <svg className="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="h-4 w-4 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                   </svg>
                   <span>Download .md</span>
@@ -513,8 +513,8 @@ export default function Summarizer({ apiKey, preferredModel }) {
           </div>
 
           {/* Formatted Content */}
-          <div className="p-6 sm:p-8 bg-[#0b101d]/60">
-            <div className="max-w-none text-slate-200">
+          <div className="p-6 sm:p-8 bg-white">
+            <div className="max-w-none text-slate-800">
               {formatSummary(summaryData.summary)}
             </div>
           </div>
@@ -525,13 +525,13 @@ export default function Summarizer({ apiKey, preferredModel }) {
       {history.length > 0 && (
         <section className="space-y-3">
           <div className="flex items-center justify-between">
-            <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
               <span>🕒 Recent Summaries</span>
-              <span className="text-[10px] text-slate-500">({history.length})</span>
+              <span className="text-[10px] text-slate-400">({history.length})</span>
             </h4>
             <button
               onClick={clearHistory}
-              className="text-xs text-slate-500 hover:text-red-400 transition"
+              className="text-xs font-semibold text-slate-500 hover:text-red-600 transition"
             >
               Clear History
             </button>
@@ -546,18 +546,18 @@ export default function Summarizer({ apiKey, preferredModel }) {
                   setUrl(`https://www.youtube.com/watch?v=${item.video_id}`);
                   window.scrollTo({ top: 300, behavior: "smooth" });
                 }}
-                className="group flex items-center gap-3 rounded-2xl glass-panel p-3 border border-slate-800 hover:border-slate-700 cursor-pointer transition hover:bg-slate-800/40"
+                className="group flex items-center gap-3 rounded-2xl bg-white p-3 border border-slate-200/90 hover:border-slate-300 cursor-pointer transition hover:shadow-md shadow-xs"
               >
                 <img
                   src={item.thumbnail_url}
                   alt={item.title}
-                  className="h-12 w-20 rounded-lg object-cover shrink-0"
+                  className="h-12 w-20 rounded-xl object-cover shrink-0"
                 />
                 <div className="min-w-0 flex-1">
-                  <p className="text-xs font-semibold text-slate-200 truncate group-hover:text-red-400 transition">
+                  <p className="text-xs font-bold text-slate-800 truncate group-hover:text-red-600 transition">
                     {item.title}
                   </p>
-                  <p className="text-[11px] text-slate-400 truncate mt-0.5">
+                  <p className="text-[11px] text-slate-500 truncate mt-0.5">
                     {item.author}
                   </p>
                 </div>
