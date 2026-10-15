@@ -172,10 +172,4 @@ def summarize_extractive(
         ])
         for t in takeaways:
             lines.append(f"- {t}")
-
-    lines.extend([
-        "",
-        "> *Summary created via Built-in NLP Extractor. Provide a Gemini API key in settings for deep generative AI synthesis.*",
-    ])
-
     return "\n".join(lines)

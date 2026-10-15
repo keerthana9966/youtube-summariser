@@ -70,9 +70,9 @@ def summarize_transcript(
     if api_key:
         # Candidate models to try in order of capability / availability
         candidate_models = [
-            settings.gemini_model,
             "gemini-2.0-flash",
             "gemini-1.5-flash",
+            settings.gemini_model,
             "gemini-1.5-pro",
         ]
         # Remove duplicates while preserving order
