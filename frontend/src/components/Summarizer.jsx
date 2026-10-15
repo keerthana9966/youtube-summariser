@@ -1,74 +1,202 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+
+const SAMPLE_VIDEOS = [
+  {
+    label: "🎵 Never Gonna Give You Up",
+    url: "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+    tag: "Captions",
+  },
+  {
+    label: "⚡ YouTube Shorts Demo",
+    url: "https://www.youtube.com/shorts/kJQP7kiw5Fk",
+    tag: "Shorts",
+  },
+  {
+    label: "🎓 Steve Jobs 2005 Speech",
+    url: "https://www.youtube.com/watch?v=UF8uR6Z6KLc",
+    tag: "Long Video",
+  },
+  {
+    label: "📻 Lofi Girl (Metadata Test)",
+    url: "https://www.youtube.com/watch?v=5qap5aO4i9A",
+    tag: "No Captions",
+  },
+];
+
+const STYLE_OPTIONS = [
+  { id: "standard", name: "Standard", desc: "Overview, key points & takeaways", icon: "⚡" },
+  { id: "tldr", name: "TL;DR", desc: "Quick 30-sec brief", icon: "⏱️" },
+  { id: "detailed", name: "Detailed", desc: "In-depth breakdown & chapters", icon: "📚" },
+  { id: "actionable", name: "Action Items", desc: "Key steps, lessons & advice", icon: "🎯" },
+];
 
 function formatSummary(text) {
+  if (!text) return null;
+
   return text.split("\n").map((line, index) => {
     const trimmed = line.trim();
     if (!trimmed) return null;
 
-    if (trimmed.startsWith("### ") || trimmed.startsWith("## ") || trimmed.startsWith("# ")) {
+    if (trimmed.startsWith("### ")) {
+      const heading = trimmed.replace(/^###\s*/, "");
+      return (
+        <div key={index} className="mt-6 mb-3 first:mt-0">
+          <h3 className="text-base font-bold text-white flex items-center gap-2">
+            <span className="h-2 w-2 rounded-full bg-red-500 shadow-sm shadow-red-500/50"></span>
+            <span>{heading}</span>
+          </h3>
+          <div className="h-px bg-slate-800/80 mt-1.5 mb-2 w-full"></div>
+        </div>
+      );
+    }
+
+    if (trimmed.startsWith("## ") || trimmed.startsWith("# ")) {
       const heading = trimmed.replace(/^#+\s*/, "");
       return (
-        <h3 key={index} className="mb-2 mt-4 text-base font-semibold text-white first:mt-0">
+        <h2 key={index} className="text-lg font-bold text-white mt-6 mb-2 border-b border-slate-800 pb-1">
           {heading}
-        </h3>
+        </h2>
       );
     }
 
     if (trimmed.startsWith("- ") || trimmed.startsWith("* ") || trimmed.startsWith("• ")) {
+      const bulletContent = trimmed.replace(/^[-*•]\s*/, "");
       return (
-        <li key={index} className="ml-4 list-disc text-gray-300">
-          {trimmed.replace(/^[-*•]\s*/, "")}
+        <li key={index} className="ml-2 mb-2 flex items-start gap-2.5 text-slate-300 text-sm leading-relaxed">
+          <span className="text-red-400 mt-1 shrink-0 text-xs">▸</span>
+          <span>{renderFormattedInline(bulletContent)}</span>
         </li>
       );
     }
 
     if (/^\d+\.\s/.test(trimmed)) {
+      const match = trimmed.match(/^(\d+)\.\s*(.*)/);
       return (
-        <li key={index} className="ml-4 list-decimal text-gray-300">
-          {trimmed.replace(/^\d+\.\s*/, "")}
+        <li key={index} className="ml-2 mb-2 flex items-start gap-2 text-slate-300 text-sm leading-relaxed">
+          <span className="font-mono text-xs font-semibold text-amber-400 shrink-0 mt-0.5">{match ? match[1] : index}.</span>
+          <span>{renderFormattedInline(match ? match[2] : trimmed)}</span>
         </li>
       );
     }
 
-    if (trimmed.startsWith("**") && trimmed.endsWith("**")) {
+    if (trimmed.startsWith(">")) {
+      const quote = trimmed.replace(/^>\s*/, "");
       return (
-        <p key={index} className="mb-1 font-semibold text-white">
-          {trimmed.replace(/\*\*/g, "")}
-        </p>
+        <blockquote key={index} className="my-3 rounded-xl border-l-2 border-amber-500/60 bg-amber-500/5 p-3 text-xs italic text-slate-300">
+          {renderFormattedInline(quote)}
+        </blockquote>
       );
     }
 
     return (
-      <p key={index} className="mb-2 leading-relaxed text-gray-300">
-        {trimmed}
+      <p key={index} className="mb-3 text-sm leading-relaxed text-slate-300">
+        {renderFormattedInline(trimmed)}
       </p>
     );
   });
 }
 
-export default function Summarizer() {
-  const [url, setUrl] = useState("");
-  const [summary, setSummary] = useState(null);
-  const [videoId, setVideoId] = useState(null);
-  const [transcriptLength, setTranscriptLength] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
+function renderFormattedInline(text) {
+  const parts = text.split(/(\*\*.*?\*\*|\*.*?\*|`.*?`)/g);
+  return parts.map((part, i) => {
+    if (part.startsWith("**") && part.endsWith("**")) {
+      return (
+        <strong key={i} className="font-semibold text-slate-100">
+          {part.slice(2, -2)}
+        </strong>
+      );
+    }
+    if (part.startsWith("*") && part.endsWith("*")) {
+      return (
+        <em key={i} className="italic text-slate-200">
+          {part.slice(1, -1)}
+        </em>
+      );
+    }
+    if (part.startsWith("`") && part.endsWith("`")) {
+      return (
+        <code key={i} className="rounded bg-slate-800 px-1.5 py-0.5 font-mono text-xs text-red-300">
+          {part.slice(1, -1)}
+        </code>
+      );
+    }
+    return part;
+  });
+}
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (!url.trim()) return;
+export default function Summarizer({ apiKey, preferredModel }) {
+  const [url, setUrl] = useState("");
+  const [style, setStyle] = useState("standard");
+  const [summaryData, setSummaryData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [loadingStep, setLoadingStep] = useState(1);
+  const [error, setError] = useState(null);
+  const [copied, setCopied] = useState(false);
+  const [history, setHistory] = useState([]);
+
+  // Load history from localStorage
+  useEffect(() => {
+    try {
+      const saved = localStorage.getItem("yt_summarizer_history");
+      if (saved) {
+        setHistory(JSON.parse(saved));
+      }
+    } catch {
+      // ignore
+    }
+  }, []);
+
+  const saveToHistory = (item) => {
+    try {
+      const updated = [item, ...history.filter((h) => h.video_id !== item.video_id)].slice(0, 6);
+      setHistory(updated);
+      localStorage.setItem("yt_summarizer_history", JSON.stringify(updated));
+    } catch {
+      // ignore
+    }
+  };
+
+  const clearHistory = () => {
+    setHistory([]);
+    try {
+      localStorage.removeItem("yt_summarizer_history");
+    } catch {
+      // ignore
+    }
+  };
+
+  const handlePaste = async () => {
+    try {
+      const text = await navigator.clipboard.readText();
+      if (text) setUrl(text.trim());
+    } catch {
+      // Clipboard permissions denied
+    }
+  };
+
+  const handleSubmit = async (e, overrideUrl) => {
+    if (e) e.preventDefault();
+    const targetUrl = (overrideUrl || url).trim();
+    if (!targetUrl) return;
 
     setLoading(true);
+    setLoadingStep(1);
     setError(null);
-    setSummary(null);
-    setVideoId(null);
-    setTranscriptLength(null);
+    setSummaryData(null);
+
+    const stepInterval = setInterval(() => {
+      setLoadingStep((prev) => (prev < 3 ? prev + 1 : prev));
+    }, 1200);
 
     try {
       const response = await fetch("/api/summarize", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: url.trim() }),
+        body: JSON.stringify({
+          url: targetUrl,
+          style: style,
+          api_key: apiKey || null,
+        }),
       });
 
       const data = await response.json();
@@ -77,209 +205,366 @@ export default function Summarizer() {
         throw new Error(data.detail || "Failed to summarize video");
       }
 
-      setSummary(data.summary);
-      setVideoId(data.video_id);
-      setTranscriptLength(data.transcript_length);
+      setSummaryData(data);
+      saveToHistory(data);
     } catch (err) {
-      setError(err.message);
+      setError(err.message || "An unexpected error occurred while connecting to backend.");
     } finally {
+      clearInterval(stepInterval);
       setLoading(false);
     }
   };
 
   const handleCopy = async () => {
-    if (!summary) return;
-    await navigator.clipboard.writeText(summary);
+    if (!summaryData?.summary) return;
+    try {
+      await navigator.clipboard.writeText(summaryData.summary);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // ignore
+    }
+  };
+
+  const handleDownloadMarkdown = () => {
+    if (!summaryData) return;
+    const content = `# Summary: ${summaryData.title}\n\n**Author:** ${summaryData.author}\n**Source:** ${summaryData.source}\n**Model:** ${summaryData.model_used}\n**URL:** https://www.youtube.com/watch?v=${summaryData.video_id}\n\n---\n\n${summaryData.summary}`;
+    const blob = new Blob([content], { type: "text/markdown;charset=utf-8" });
+    const blobUrl = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = blobUrl;
+    link.download = `summary-${summaryData.video_id}.md`;
+    link.click();
+    URL.revokeObjectURL(blobUrl);
   };
 
   return (
-    <div className="space-y-8">
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="relative">
-          <label htmlFor="url" className="mb-2 block text-sm font-medium text-gray-300">
-            YouTube Video URL
-          </label>
-          <div className="flex gap-3">
-            <div className="relative flex-1">
-              <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4">
-                <svg
-                  className="h-5 w-5 text-gray-500"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
-                  />
-                </svg>
-              </div>
-              <input
-                id="url"
-                type="url"
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
-                placeholder="https://www.youtube.com/watch?v=..."
-                className="w-full rounded-xl border border-gray-700 bg-gray-800/50 py-3.5 pl-12 pr-4 text-white placeholder-gray-500 transition focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500/20"
-                disabled={loading}
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={loading || !url.trim()}
-              className="flex items-center gap-2 rounded-xl bg-red-600 px-6 py-3.5 font-semibold text-white transition hover:bg-red-500 disabled:cursor-not-allowed disabled:opacity-50"
-            >
-              {loading ? (
-                <>
-                  <svg
-                    className="h-5 w-5 animate-spin"
-                    fill="none"
-                    viewBox="0 0 24 24"
+    <div className="space-y-8 animate-fade-in">
+      {/* Search and Input Container */}
+      <section className="relative rounded-3xl glass-panel p-5 sm:p-7 glow-card">
+        <form onSubmit={(e) => handleSubmit(e)} className="space-y-5">
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <label htmlFor="url-input" className="text-xs sm:text-sm font-semibold tracking-wide text-slate-200 flex items-center gap-2">
+                <span>Enter YouTube Video URL</span>
+                <span className="text-[11px] font-normal text-slate-400 hidden sm:inline">(Supports all links, Shorts, and Live)</span>
+              </label>
+
+              <div className="flex items-center gap-2">
+                {url && (
+                  <button
+                    id="clear-url-btn"
+                    type="button"
+                    onClick={() => setUrl("")}
+                    className="text-xs text-slate-400 hover:text-red-400 transition"
                   >
-                    <circle
-                      className="opacity-25"
-                      cx="12"
-                      cy="12"
-                      r="10"
-                      stroke="currentColor"
-                      strokeWidth="4"
-                    />
-                    <path
-                      className="opacity-75"
-                      fill="currentColor"
-                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                    />
-                  </svg>
-                  Summarizing...
-                </>
-              ) : (
-                <>
-                  <svg
-                    className="h-5 w-5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
-                    />
-                  </svg>
-                  Summarize
-                </>
-              )}
-            </button>
-          </div>
-        </div>
-      </form>
-
-      {error && (
-        <div className="flex items-start gap-3 rounded-xl border border-red-500/30 bg-red-500/10 p-4">
-          <svg
-            className="mt-0.5 h-5 w-5 shrink-0 text-red-400"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-          <p className="text-sm text-red-300">{error}</p>
-        </div>
-      )}
-
-      {loading && (
-        <div className="rounded-2xl border border-gray-800 bg-gray-900/50 p-8">
-          <div className="flex flex-col items-center gap-4 text-center">
-            <div className="h-12 w-12 animate-pulse rounded-full bg-red-600/20" />
-            <div className="space-y-2">
-              <p className="font-medium text-white">Fetching transcript...</p>
-              <p className="text-sm text-gray-400">
-                This may take a few seconds depending on video length
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {summary && !loading && (
-        <div className="overflow-hidden rounded-2xl border border-gray-800 bg-gray-900/50">
-          <div className="flex items-center justify-between border-b border-gray-800 px-6 py-4">
-            <div className="flex items-center gap-3">
-              {videoId && (
-                <img
-                  src={`https://img.youtube.com/vi/${videoId}/mqdefault.jpg`}
-                  alt="Video thumbnail"
-                  className="h-12 w-20 rounded-lg object-cover"
-                />
-              )}
-              <div>
-                <h2 className="font-semibold text-white">Summary</h2>
-                {transcriptLength && (
-                  <p className="text-xs text-gray-500">
-                    Based on {transcriptLength.toLocaleString()} characters of transcript
-                  </p>
+                    Clear
+                  </button>
                 )}
+                <button
+                  id="paste-url-btn"
+                  type="button"
+                  onClick={handlePaste}
+                  className="flex items-center gap-1 text-xs text-slate-300 hover:text-white bg-slate-800/80 px-2 py-1 rounded-lg border border-slate-700/60 transition"
+                >
+                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                  </svg>
+                  <span>Paste</span>
+                </button>
               </div>
             </div>
-            <button
-              onClick={handleCopy}
-              className="flex items-center gap-1.5 rounded-lg border border-gray-700 px-3 py-1.5 text-sm text-gray-300 transition hover:border-gray-600 hover:bg-gray-800 hover:text-white"
-            >
-              <svg
-                className="h-4 w-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"
+
+            <div className="relative flex flex-col sm:flex-row gap-3">
+              <div className="relative flex-1">
+                <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-4 text-slate-500">
+                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                  </svg>
+                </div>
+                <input
+                  id="url-input"
+                  type="text"
+                  value={url}
+                  onChange={(e) => setUrl(e.target.value)}
+                  placeholder="Paste YouTube link: https://youtube.com/watch?v=... or /shorts/..."
+                  className="w-full rounded-2xl border border-slate-700/80 glass-input py-3.5 pl-12 pr-4 text-sm text-slate-100 placeholder-slate-500 shadow-inner transition focus:border-red-500 focus:outline-none focus:ring-2 focus:ring-red-500/30"
+                  disabled={loading}
                 />
-              </svg>
-              Copy
-            </button>
+              </div>
+
+              <button
+                id="summarize-btn"
+                type="submit"
+                disabled={loading || !url.trim()}
+                className="flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-red-600 to-rose-600 px-7 py-3.5 text-sm font-bold text-white shadow-lg shadow-red-600/30 transition hover:from-red-500 hover:to-rose-500 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
+              >
+                {loading ? (
+                  <>
+                    <svg className="h-4 w-4 animate-spin text-white" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    </svg>
+                    <span>Processing...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Summarize Video</span>
+                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                    </svg>
+                  </>
+                )}
+              </button>
+            </div>
           </div>
-          <div className="px-6 py-5">
-            <div className="prose-sm max-w-none">{formatSummary(summary)}</div>
+
+          {/* Style Selector Tabs */}
+          <div>
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">Summary Style</span>
+              <span className="text-xs text-slate-500">Pick format preference</span>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              {STYLE_OPTIONS.map((opt) => (
+                <button
+                  key={opt.id}
+                  id={`style-btn-${opt.id}`}
+                  type="button"
+                  onClick={() => setStyle(opt.id)}
+                  className={`flex flex-col items-start p-2.5 rounded-xl border text-left transition ${
+                    style === opt.id
+                      ? "border-red-500/80 bg-red-500/10 text-white shadow-sm"
+                      : "border-slate-800 bg-slate-900/40 text-slate-400 hover:border-slate-700 hover:text-slate-200"
+                  }`}
+                >
+                  <div className="flex items-center gap-1.5 text-xs font-semibold">
+                    <span>{opt.icon}</span>
+                    <span>{opt.name}</span>
+                  </div>
+                  <span className="text-[11px] text-slate-500 mt-0.5 line-clamp-1">{opt.desc}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Quick Sample Links */}
+          <div className="pt-2 border-t border-slate-800/80">
+            <span className="text-xs font-medium text-slate-400 mr-2">Try sample:</span>
+            <div className="inline-flex flex-wrap gap-2 mt-2">
+              {SAMPLE_VIDEOS.map((sample, idx) => (
+                <button
+                  key={idx}
+                  id={`sample-btn-${idx}`}
+                  type="button"
+                  onClick={() => {
+                    setUrl(sample.url);
+                    handleSubmit(null, sample.url);
+                  }}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-slate-700/60 bg-slate-900/70 px-3 py-1 text-xs text-slate-300 hover:border-red-500/40 hover:bg-red-500/10 hover:text-white transition"
+                >
+                  <span>{sample.label}</span>
+                  <span className="text-[10px] text-slate-500 font-mono">({sample.tag})</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </form>
+      </section>
+
+      {/* Error Alert */}
+      {error && (
+        <div id="error-alert" className="flex items-start gap-3 rounded-2xl border border-red-500/40 bg-red-500/10 p-4 text-red-200 animate-fade-in">
+          <svg className="mt-0.5 h-5 w-5 shrink-0 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <div className="space-y-1">
+            <p className="text-sm font-semibold text-red-300">Could not summarize video</p>
+            <p className="text-xs text-red-200 leading-relaxed">{error}</p>
           </div>
         </div>
       )}
 
-      {!summary && !loading && !error && (
-        <div className="rounded-2xl border border-dashed border-gray-800 p-10 text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gray-800/50">
-            <svg
-              className="h-8 w-8 text-gray-600"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={1.5}
-                d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
-              />
-            </svg>
+      {/* Multi-step Loading Animation */}
+      {loading && (
+        <div id="loading-card" className="rounded-3xl glass-panel p-8 text-center space-y-6 glow-card">
+          <div className="relative mx-auto flex h-16 w-16 items-center justify-center">
+            <div className="absolute inset-0 animate-ping rounded-full bg-red-600/20" />
+            <div className="relative flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-tr from-red-600 to-rose-500 text-white shadow-lg shadow-red-600/40">
+              <svg className="h-6 w-6 animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+              </svg>
+            </div>
           </div>
-          <h3 className="mb-2 text-lg font-medium text-gray-300">
-            No summary yet
-          </h3>
-          <p className="text-sm text-gray-500">
-            Paste a YouTube URL above and click Summarize to get started
-          </p>
+
+          <div className="space-y-2">
+            <h3 className="text-base font-semibold text-white">Analyzing YouTube Content</h3>
+            <p className="text-xs text-slate-400">
+              {loadingStep === 1 && "Verifying link, video title, and channel info..."}
+              {loadingStep === 2 && "Fetching video transcripts, captions, and notes..."}
+              {loadingStep === 3 && "Synthesizing structured points and takeaways..."}
+            </p>
+          </div>
+
+          {/* Progress step dots */}
+          <div className="flex items-center justify-center gap-3">
+            {[1, 2, 3].map((step) => (
+              <div
+                key={step}
+                className={`h-2 rounded-full transition-all duration-300 ${
+                  loadingStep >= step ? "w-8 bg-red-500" : "w-2 bg-slate-800"
+                }`}
+              />
+            ))}
+          </div>
         </div>
+      )}
+
+      {/* Summary Results Card */}
+      {summaryData && !loading && (
+        <article id="summary-result-card" className="rounded-3xl glass-panel overflow-hidden glow-card border border-slate-700/60">
+          {/* Top Video Header */}
+          <div className="p-5 sm:p-6 border-b border-slate-800 bg-slate-900/40">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+              <div className="flex items-start sm:items-center gap-4">
+                <a
+                  href={`https://www.youtube.com/watch?v=${summaryData.video_id}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="relative group shrink-0 overflow-hidden rounded-xl border border-slate-700/60 shadow-md"
+                  title="Open on YouTube"
+                >
+                  <img
+                    src={summaryData.thumbnail_url}
+                    alt={summaryData.title}
+                    className="h-16 w-28 object-cover transition-transform group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition">
+                    <svg className="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M8 5v14l11-7z" />
+                    </svg>
+                  </div>
+                </a>
+
+                <div className="space-y-1">
+                  <a
+                    href={`https://www.youtube.com/watch?v=${summaryData.video_id}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="text-base font-bold text-white hover:text-red-400 transition line-clamp-2"
+                  >
+                    {summaryData.title}
+                  </a>
+                  <p className="text-xs text-slate-400 flex items-center gap-1.5">
+                    <span>{summaryData.author}</span>
+                    <span>•</span>
+                    <span className="font-mono">{summaryData.transcript_length.toLocaleString()} chars</span>
+                  </p>
+
+                  <div className="flex flex-wrap items-center gap-2 pt-1">
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold bg-red-500/10 text-red-400 border border-red-500/20">
+                      {summaryData.source === "transcript" ? "📝 Transcript-based" : "📋 Description & Metadata"}
+                    </span>
+                    <span className="inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-semibold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                      ⚡ {summaryData.model_used}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Toolbar */}
+              <div className="flex items-center gap-2 w-full sm:w-auto justify-end pt-2 sm:pt-0">
+                <button
+                  id="copy-summary-btn"
+                  onClick={handleCopy}
+                  className="flex items-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800/80 px-3 py-2 text-xs font-semibold text-slate-200 hover:border-slate-600 hover:bg-slate-700 transition"
+                  title="Copy formatted markdown"
+                >
+                  {copied ? (
+                    <>
+                      <svg className="h-4 w-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                      <span className="text-emerald-300">Copied!</span>
+                    </>
+                  ) : (
+                    <>
+                      <svg className="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                      </svg>
+                      <span>Copy</span>
+                    </>
+                  )}
+                </button>
+
+                <button
+                  id="download-md-btn"
+                  onClick={handleDownloadMarkdown}
+                  className="flex items-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800/80 px-3 py-2 text-xs font-semibold text-slate-200 hover:border-slate-600 hover:bg-slate-700 transition"
+                  title="Download Markdown file"
+                >
+                  <svg className="h-4 w-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+                  </svg>
+                  <span>Download .md</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Formatted Content */}
+          <div className="p-6 sm:p-8 bg-[#0b101d]/60">
+            <div className="max-w-none text-slate-200">
+              {formatSummary(summaryData.summary)}
+            </div>
+          </div>
+        </article>
+      )}
+
+      {/* History / Recent Videos */}
+      {history.length > 0 && (
+        <section className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h4 className="text-xs font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+              <span>🕒 Recent Summaries</span>
+              <span className="text-[10px] text-slate-500">({history.length})</span>
+            </h4>
+            <button
+              onClick={clearHistory}
+              className="text-xs text-slate-500 hover:text-red-400 transition"
+            >
+              Clear History
+            </button>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {history.map((item) => (
+              <div
+                key={item.video_id}
+                onClick={() => {
+                  setSummaryData(item);
+                  setUrl(`https://www.youtube.com/watch?v=${item.video_id}`);
+                  window.scrollTo({ top: 300, behavior: "smooth" });
+                }}
+                className="group flex items-center gap-3 rounded-2xl glass-panel p-3 border border-slate-800 hover:border-slate-700 cursor-pointer transition hover:bg-slate-800/40"
+              >
+                <img
+                  src={item.thumbnail_url}
+                  alt={item.title}
+                  className="h-12 w-20 rounded-lg object-cover shrink-0"
+                />
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-semibold text-slate-200 truncate group-hover:text-red-400 transition">
+                    {item.title}
+                  </p>
+                  <p className="text-[11px] text-slate-400 truncate mt-0.5">
+                    {item.author}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
       )}
     </div>
   );

@@ -1,37 +1,97 @@
+import { useState, useEffect } from "react";
+import Navbar from "./components/Navbar";
 import Summarizer from "./components/Summarizer";
+import SettingsModal from "./components/SettingsModal";
 
 function App() {
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950">
-      <header className="border-b border-gray-800 bg-gray-950/80 backdrop-blur-sm">
-        <div className="mx-auto flex max-w-4xl items-center gap-3 px-6 py-5">
-          <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-red-600 shadow-lg shadow-red-600/30">
-            <svg
-              className="h-5 w-5 text-white"
-              fill="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path d="M23.498 6.186a3.016 3.016 0 0 0-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 0 0 .502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 0 0 2.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 0 0 2.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z" />
-            </svg>
-          </div>
-          <div>
-            <h1 className="text-xl font-bold tracking-tight text-white">
-              YouTube Summarizer
-            </h1>
-            <p className="text-sm text-gray-400">
-              Get AI-powered summaries of any YouTube video
-            </p>
-          </div>
-        </div>
-      </header>
+  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+  const [apiKey, setApiKey] = useState("");
+  const [preferredModel, setPreferredModel] = useState("gemini-2.5-flash");
+  const [serverConfig, setServerConfig] = useState(null);
 
-      <main className="mx-auto max-w-4xl px-6 py-10">
-        <Summarizer />
+  useEffect(() => {
+    // Load local settings
+    const savedKey = localStorage.getItem("yt_gemini_api_key") || "";
+    const savedModel = localStorage.getItem("yt_gemini_model") || "gemini-2.5-flash";
+    setApiKey(savedKey);
+    setPreferredModel(savedModel);
+
+    // Check backend health and config
+    fetch("/api/config")
+      .then((res) => res.json())
+      .then((data) => setServerConfig(data))
+      .catch(() => {
+        // Backend not reachable or running standalone
+      });
+  }, []);
+
+  const handleSaveSettings = ({ apiKey: newKey, model: newModel }) => {
+    setApiKey(newKey);
+    setPreferredModel(newModel);
+    localStorage.setItem("yt_gemini_api_key", newKey);
+    localStorage.setItem("yt_gemini_model", newModel);
+  };
+
+  const hasKey = Boolean(apiKey || serverConfig?.has_backend_gemini_key);
+
+  return (
+    <div className="min-h-screen flex flex-col bg-[#080b12] text-slate-100 selection:bg-red-500/30 selection:text-red-200">
+      <Navbar
+        onOpenSettings={() => setIsSettingsOpen(true)}
+        hasApiKey={hasKey}
+        serverStatus={serverConfig}
+      />
+
+      <main className="flex-1 mx-auto w-full max-w-4xl px-4 sm:px-6 py-8 sm:py-12">
+        {/* Hero Banner */}
+        <div className="text-center max-w-2xl mx-auto mb-10 space-y-3">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-red-500/20 bg-red-500/10 text-red-400 text-xs font-semibold">
+            <span>✨</span>
+            <span>Summarize any YouTube video in seconds</span>
+          </div>
+          <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white">
+            Skip the fluff. Get instant{" "}
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-red-500 via-rose-400 to-amber-400">
+              key points & takeaways.
+            </span>
+          </h2>
+          <p className="text-sm sm:text-base text-slate-400 leading-relaxed">
+            Paste any YouTube video link, Short, or Livestream. Our AI extracts transcripts, chapters, and discussions to give you clear, structured insights.
+          </p>
+        </div>
+
+        <Summarizer apiKey={apiKey} preferredModel={preferredModel} />
       </main>
 
-      <footer className="mt-auto border-t border-gray-800 py-6 text-center text-sm text-gray-500">
-        Paste a YouTube URL and let AI summarize the video for you
+      <footer className="border-t border-slate-800/80 bg-[#080c16]/80 py-8 text-center text-xs text-slate-500">
+        <div className="mx-auto max-w-4xl px-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+          <div className="flex items-center gap-2 text-slate-400">
+            <span className="h-2 w-2 rounded-full bg-emerald-400"></span>
+            <span>API Online • Works on any link</span>
+          </div>
+          <p>
+            Built for fast learning • Powered by Google Gemini & YouTube Transcript API
+          </p>
+          <div>
+            <a
+              href="https://github.com/keerthana9966/youtube-summariser"
+              target="_blank"
+              rel="noreferrer"
+              className="text-slate-400 hover:text-white transition"
+            >
+              GitHub Repo
+            </a>
+          </div>
+        </div>
       </footer>
+
+      <SettingsModal
+        isOpen={isSettingsOpen}
+        onClose={() => setIsSettingsOpen(false)}
+        onSave={handleSaveSettings}
+        currentKey={apiKey}
+        currentModel={preferredModel}
+      />
     </div>
   );
 }
