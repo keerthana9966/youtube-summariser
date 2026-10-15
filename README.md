@@ -5,15 +5,17 @@
 ### High-Performance, Fault-Tolerant Video Intelligence Platform
 *Transform hours of video content into structured insights, executive summaries, and actionable key points in seconds.*
 
+[![Live Demo](https://img.shields.io/badge/Live%20Demo-Render-00c7b7.svg?style=for-the-badge&logo=render&logoColor=white)](https://youtube-summariser-k4lk.onrender.com/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688.svg?style=for-the-badge&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com)
 [![React](https://img.shields.io/badge/React-18+-61DAFB.svg?style=for-the-badge&logo=react&logoColor=black)](https://reactjs.org)
 [![Vite](https://img.shields.io/badge/Vite-6.0+-646CFF.svg?style=for-the-badge&logo=vite&logoColor=white)](https://vitejs.dev)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4+-38B2AC.svg?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com)
 [![Google Gemini](https://img.shields.io/badge/Google%20Gemini-2.5%20Flash-4285F4.svg?style=for-the-badge&logo=google&logoColor=white)](https://ai.google.dev)
-[![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg?style=for-the-badge&logo=docker&logoColor=white)](https://www.docker.com)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://opensource.org/licenses/MIT)
 
-[Live Demo](#-live-deployment--cloud-hosting) • [Architecture](#-system-architecture) • [Engineering Highlights](#-engineering-highlights--technical-decisions) • [Quick Start](#-quick-start) • [API Docs](#-rest-api-documentation)
+### 🌐 **Live Application:** [https://youtube-summariser-k4lk.onrender.com](https://youtube-summariser-k4lk.onrender.com/)
+
+[Try Live Demo](https://youtube-summariser-k4lk.onrender.com/) • [Architecture](#-system-architecture) • [Engineering Highlights](#-engineering-highlights--technical-decisions) • [Quick Start](#-quick-start) • [API Docs](#-rest-api-documentation)
 
 </div>
 
@@ -37,13 +39,8 @@ Unlike basic wrappers that crash when transcripts or API quotas run out, this ap
 - **🛡️ Resilient Caption & Metadata Fallback:**
   - Handles manual captions, auto-generated subtitles, and foreign language translation.
   - Automatically falls back to public oEmbed API and metadata parsing when captions are disabled (e.g. music streams, podcasts).
-- **🎨 4 Adaptive Summary Perspectives:**
-  - ⚡ **Standard:** 3-sentence executive overview, 5–7 bullet points, and main takeaways.
-  - ⏱️ **TL;DR:** 30-second rapid elevator pitch for instant scanning.
-  - 📚 **Detailed:** Deep dive with chapters, structured subheadings, and context.
-  - 🎯 **Action Items:** Concrete lessons, recommendations, and tactical steps.
-- **💎 Modern Glassmorphism UI/UX:**
-  - Custom dark theme with glowing accents, animated multi-stage loading pipeline, quick 1-click sample links, persistent local history, and instant clipboard/Markdown export.
+- **✨ Distraction-Free Minimalist UI:**
+  - Modern, elegant light aesthetic with crisp typography, streamlined single-input workflow, instant example links, and 1-click clipboard copy. No unnecessary setup or clutter.
 
 ---
 
@@ -52,14 +49,12 @@ Unlike basic wrappers that crash when transcripts or API quotas run out, this ap
 ```
                                   [ User Client / Browser ]
                                               │
-                      ┌───────────────────────┴───────────────────────┐
-                      ▼                                               ▼
-         [ React 18 + Vite Frontend ]                     [ Settings Modal (API Key) ]
-         • Glassmorphism Design System                    • Browser localStorage
-         • Multi-Stage Loading State                      • Optional Custom Gemini Key
-         • History & Export Controls                                  │
-                      │                                               │
-                      └───────────────────────┬───────────────────────┘
+                                              ▼
+                         [ Minimalist React 18 + Vite SPA ]
+                         • Clean, Distraction-Free Light Theme
+                         • Single-Input Instant Summarization
+                         • Formatted Markdown Reader & 1-Click Copy
+                                              │
                                               │ HTTP REST (JSON)
                                               ▼
                              [ FastAPI Application Layer ]
@@ -89,7 +84,7 @@ Unlike basic wrappers that crash when transcripts or API quotas run out, this ap
 
 ## 🛠️ Tech Stack & Skills Demonstrated
 
-- **Frontend:** React 18, Vite, Tailwind CSS, Lucide-style SVG icons, Responsive Glassmorphism Design, Modern Typography.
+- **Frontend:** React 18, Vite, Tailwind CSS, Google Fonts (*Plus Jakarta Sans*), Minimalist UX/UI.
 - **Backend:** Python 3.11+, FastAPI, Pydantic v2, Uvicorn, HTTPX, YouTube Transcript API.
 - **AI & NLP:** Google Gemini Flash API (`google.generativeai` / `google.genai`), Custom Term-Frequency & Position-Weighted Sentence Scorer.
 - **DevOps & Cloud:** Docker (Multi-stage build), Render Blueprint (`render.yaml`), Git version control, Windows batch scripting.
@@ -142,7 +137,11 @@ Open **http://localhost:5173** (Vite proxies all `/api` calls directly to port 8
 
 ## 🌐 Live Deployment & Cloud Hosting
 
-### Deploy to Render (Recommended — 1-Click)
+### Live Production URL
+The platform is live and publicly accessible on Render:
+👉 **[https://youtube-summariser-k4lk.onrender.com](https://youtube-summariser-k4lk.onrender.com/)**
+
+### Deploying Your Own Instance on Render
 1. Push code to your GitHub repo.
 2. In [Render Dashboard](https://dashboard.render.com), create a **New Web Service**.
 3. Configure:
@@ -170,12 +169,9 @@ Summarize any YouTube video.
 #### Request Body
 ```json
 {
-  "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
-  "style": "standard",
-  "api_key": "optional-custom-gemini-key"
+  "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
 }
 ```
-*Styles supported: `standard`, `tldr`, `detailed`, `actionable`.*
 
 #### Response (200 OK)
 ```json
@@ -202,6 +198,7 @@ Kubernetes / Docker health check probe.
 ## 👩‍💻 Author & Contact
 
 **Keerthana**  
+- **Live Demo:** [youtube-summariser-k4lk.onrender.com](https://youtube-summariser-k4lk.onrender.com/)
 - **GitHub:** [@keerthana9966](https://github.com/keerthana9966)  
 - **Project Repository:** [keerthana9966/youtube-summariser](https://github.com/keerthana9966/youtube-summariser)
 
